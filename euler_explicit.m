@@ -1,5 +1,6 @@
 clear all 
 close all 
+clc
 
 Ds=(0.2544*10^(-4))/86400;
 Ll=2*10^(-4);
@@ -148,7 +149,7 @@ end
 ovr=(nact+nconc+nohm);
 OUR=co2*qo2;
 
-idenstity=I/54*10^(-1);
+idensity=I/54*10^(-1);
 mut=(mu(1)-kd).*t;
 mutnoexp(:,:)=exp(mut);
 power=Eoutput.*I;
@@ -161,13 +162,46 @@ eff(:,:)=power/76.7;
 %plot(I,ovr)
 %plot(cs,ovr)
 %plot(cs(1:5000),I(1:5000))
-%plot(cs(1:12000),eff(1:12000))
+% plot(cs(1:12000),eff(1:12000))
 %plot(cs,mu)
 %plot(cs(1:16000),mut(1:16000))
-%plot(cs(1:16000),mut(1:16000))
+% plot(cs(1:16000),mut(1:16000))
 %plot(t(1:12000),power(1:12000))
 %plot(cs(1:5000),OUR(1:5000))
 %plot(t(1:10000),co2(1:10000))
-plot(t(1:14000),Eoutput(1:14000))
+
+
+figure (1)
+% plot(t(1:14000),Eoutput(1:14000))
+plot(ph(1:14000),cs(1:14000))
+xlabel('pH in anode biofilm');
+ylabel('Concentration of lactate (kg/m^{3})')
+xlim([3,7]);
+ylim([2.5,7.55]);
+saveas(gcf,'pH.tiff')
 figure (2)
-plot(cs(1:14000),ph(1:14000))
+plot(ovr(1:14000),cs(1:14000))
+xlabel('Overpotential (mV)');
+ylabel('Concentration of lactate (kg/m^{3})')
+xlim([0 140]);
+ylim([2.5,7.55]);
+saveas(gcf,'overpotential.tiff')
+% figure (3)
+% % plot(cs(1:14000),eff(1:14000))
+% plot(cs(1:12000),eff(1:12000))
+% figure (4)
+% plot(cs(1:14000),I(1:14000))
+figure (5)
+plot(L(1:14000),cs(1:14000))
+xlabel('Biofilm Thickness (m)');
+ylabel('Concentration of lactate (kg/m^{3})')
+xlim([2.6*10^(-3),3.3*10^(-3)]);
+saveas(gcf,'biofilm_thickness.tiff')
+% ylim([2,7.5]);
+figure (6)
+plot(mut(1:16000),cs(1:16000))
+xlabel('ln(C/C_o)');
+ylabel('Concentration of lactate (kg/m^{3})')
+xlim([0 11.8]);
+ylim([0,8]);
+saveas(gcf,'growth_kinetics_bact.tiff')
