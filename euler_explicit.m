@@ -33,9 +33,11 @@ ks=1.27*10^(-3);
 chb=10^(-7);
 
 
+% mL = [0.04*10^(-1), 0.05*10^(-1), 0.065*10^(-1)];
+ mT = [321 324 328]
 
-
-
+for j=1:(length(mT))
+    T = mT(j)
 f1 = @(cs) rmax*(1-exp(-cs/ks)) ;
 f2 = @(mu,nact,phia) (mu*(1/(1+exp(-F/(R*T*1000)*nact)))*phia) ;
 f3 = @(rs,phia,delta,L) Yac*rs-bina*phia+(phia/L)*delta-(phia/L)*(Yac*rs*L+delta) ;
@@ -101,7 +103,7 @@ delta(1)=-1.446759259*10^(-08);
 cco2(1)=1.804718175*10^(-10);%INITIAL CO2 CONC NEEDED and here up needed to be reviewed
 ch(1)=10^(-7);
 vl(1)=135*10^(-6);
-csb(1)=5;
+csb(1)=7.5;
 cco2b(1)=1.804718175*10^(-25);
 co2b(1)=7.23*10^(-3);
 co2(1)=7.23*10^(-3);
@@ -115,37 +117,45 @@ Eoutput(1)=0;
 I(1)=0;
 T(1)=308;
 
+% for j=1:(length(mL))
+%      L(1)= mL(j);
+%       T = mT(j)
+    for i=1:(length(t)-1)
 
-for i=1:(length(t)-1)
-    
-    phia(i+1) = phia(i) + 0.1*d_t*f3(rs(i),phia(i),delta(i),L(i));
-    L(i+1) = L(i) + 0.008*d_t*f4(rs(i),L(i),delta(i));
-    delta(i+1) = delta(i) + 0.8*d_t*f5(L(i));
-    cs(i+1) = cs(i) + 0.00031*d_t*f6(L(i),csb(i),cs(i),rs(i),delta(i));
-    cco2(i+1) = cco2(i) + d_t*f7(L(i),cco2b(i),cco2(i),rs(i),delta(i));
-    ch(i+1) = ch(i) + 0.000000003*d_t*f8(L(i),chb,ch(i),rs(i),delta(i));
-    vl(i+1) = vl(i) + d_t*f9(rs(i),L(i),delta(i));
-    csb(i+1) = csb(i) + 0.0003*d_t*f10(csb(i),cs(i),vl(i));
-    cco2b(i+1) = cco2b(i) + d_t*f11(cco2b(i),cco2(i),vl(i));
-    co2(i+1) = f12(i+d_t);
-    Ecathode(i+1) = f13(co2(i+1),10^(-7));
-    Eanode(i+1) = f14(ch(i+1),cco2(i+1),cs(i+1));
-    il(i+1) = f15(csb(i+1));
-    nohm(i+1) = f16(I(i));
-    nconc(i+1) = f17(I(i),il);
-    nact(i+1) = f18(I(i),cs(i+1));
-    mu(i+1) = f1(cs(i+1));
-    rs(i+1) = f2(mu(i+1),nact(i+1),phia(i+1));
-    Eoutput(i+1) = f19(Ecathode(i+1),Eanode(i+1),nohm(i+1),nconc(i+1),nact(i+1));
-    I(i+1) = f20(Eoutput(i+1));
-    if i<=16000
-    kd(i)=mu(1)*exp(-(16000/t(i)));
-    elseif i>16000
-        kd(i)=mu(1);
+        phia(i+1) = phia(i) + 0.1*d_t*f3(rs(i),phia(i),delta(i),L(i));
+        L(i+1) = L(i) + 0.008*d_t*f4(rs(i),L(i),delta(i));
+        delta(i+1) = delta(i) + 0.8*d_t*f5(L(i));
+        cs(i+1) = cs(i) + 0.00031*d_t*f6(L(i),csb(i),cs(i),rs(i),delta(i));
+        cco2(i+1) = cco2(i) + d_t*f7(L(i),cco2b(i),cco2(i),rs(i),delta(i));
+        ch(i+1) = ch(i) + 0.000000003*d_t*f8(L(i),chb,ch(i),rs(i),delta(i));
+        vl(i+1) = vl(i) + d_t*f9(rs(i),L(i),delta(i));
+        csb(i+1) = csb(i) + 0.0003*d_t*f10(csb(i),cs(i),vl(i));
+        cco2b(i+1) = cco2b(i) + d_t*f11(cco2b(i),cco2(i),vl(i));
+        co2(i+1) = f12(i+d_t);
+        Ecathode(i+1) = f13(co2(i+1),10^(-7));
+        Eanode(i+1) = f14(ch(i+1),cco2(i+1),cs(i+1));
+        il(i+1) = f15(csb(i+1));
+        nohm(i+1) = f16(I(i));
+        nconc(i+1) = f17(I(i),il);
+        nact(i+1) = f18(I(i),cs(i+1));
+        mu(i+1) = f1(cs(i+1));
+        rs(i+1) = f2(mu(i+1),nact(i+1),phia(i+1));
+        Eoutput(i+1) = f19(Ecathode(i+1),Eanode(i+1),nohm(i+1),nconc(i+1),nact(i+1));
+        I(i+1) = f20(Eoutput(i+1));
+        if i<=16000
+        kd(i)=mu(1)*exp(-(16000/t(i)));
+        elseif i>16000
+            kd(i)=mu(1);
+        end
+        ph = -log10(ch);
+
     end
-    ph = -log10(ch);
-   
-end
+    mcs(j,:)=cs; 
+    mph(j,:)=ph;
+    mL_cal(j,:)=L;
+    ovr=(nact+nconc+nohm);
+    movr(j,:)=ovr;
+end 
 ovr=(nact+nconc+nohm);
 OUR=co2*qo2;
 
@@ -171,37 +181,174 @@ eff(:,:)=power/76.7;
 %plot(t(1:10000),co2(1:10000))
 
 
+% figure (1)
+% % plot(t(1:14000),Eoutput(1:14000))
+% plot(ph(1:14000),cs(1:14000),'k')
+% xlabel('pH in anode biofilm','FontWeight','bold');
+% ylabel('Concentration of lactate (kg/m^{3})','FontWeight','bold')
+% xlim([3,7]);
+% ylim([2.5,7.55]);
+% saveas(gcf,'pH.tiff')
+% figure (2)
+% plot(ovr(1:14000),cs(1:14000),'k')
+% xlabel('Overpotential (mV)','FontWeight','bold');
+% ylabel('Concentration of lactate (kg/m^{3})','FontWeight','bold')
+% xlim([0 140]);
+% ylim([2.5,7.55]);
+% saveas(gcf,'overpotential.tiff')
+% % figure (3)
+% % % plot(cs(1:14000),eff(1:14000))
+% % plot(cs(1:12000),eff(1:12000))
+% % figure (4)
+% % plot(cs(1:14000),I(1:14000))
+% figure (5)
+% plot(L(1:14000),cs(1:14000),'k')
+% xlabel('Biofilm Thickness (m)','FontWeight','bold');
+% ylabel('Concentration of lactate (kg/m^{3})','FontWeight','bold')
+% xlim([2.6*10^(-3),3.3*10^(-3)]);
+% saveas(gcf,'biofilm_thickness.tiff')
+% % ylim([2,7.5]);
+% figure (6)
+% plot(mut(1:16000),cs(1:16000),'k')
+% xlabel('ln(C/C_o)','FontWeight','bold');
+% ylabel('Concentration of lactate (kg/m^{3})','FontWeight','bold')
+% xlim([0 11.8]);
+% ylim([0,8]);
+% saveas(gcf,'growth_kinetics_bact.tiff')
+% figure(7)
+% plot(mut(1:14500),L(1:14500));
+% xlabel('ln(C/C_o)','FontWeight','bold');
+% ylabel('Biofilm Thickness (m)','FontWeight','bold');
+% saveas(gcf,'growth_bact_With_thickness.tiff')
+% figure (8)
+% plot(L(1:14000),ch(1:14000),'k')
+% xlabel('Biofilm Thickness (m)','FontWeight','bold');
+% ylabel('Concentration of hydrogen ions (kg/m^{3})','FontWeight','bold')
+% xlim([2.6*10^(-3),3.3*10^(-3)]);
+% saveas(gcf,'biofilm_thickness_hydrogen.tiff')
+% figure (9)
+% plot(L(1:14000),cco2(1:14000),'k')
+% xlabel('Biofilm Thickness (m)','FontWeight','bold');
+% ylabel('Concentration of carbon dioxide biofilm (kg/m^{3})','FontWeight','bold')
+% xlim([2.6*10^(-3),3.3*10^(-3)]);
+% saveas(gcf,'biofilm_thickness_CarbonDioxide.tiff')
+
+% 
+% %%%%%%%generating the surface plot for anode potential vs current vs
+% %%%%%%%substrate%%%%%
+% % [X Y] = meshgrid(Eanode(1:14000),cs(1:14000))
+% 
+% % figure(1)
+% % % surf(Eanode(1:14000),cs(1:14000),I(1:14000))
+% % scatter3(Eanode(1:14000),cs(1:14000),I(1:14000))
+% % xlabel('anode potential(mV)');
+% % ylabel('Concentration of lactate (kg/m^{3})')
+
+% figure (7)
+% plot(Eanode(11:14000),I(11:14000),'k','LineWidth',0.5)
+% xlabel('anode potential(mV)','FontWeight','bold')
+% ylabel('Current(mA)','FontWeight','bold')
+% saveas(gcf,'current_AnodePotential.tiff')
+
+
+% ae=[0 0.00000000001 0.00000000002 0.00000000004 0.00000000006 0.00000000008 0.0000000001 0.0000000002 0.0000000004 0.0000000006 0.0000000008  0.000000001 0.000000002 0.000000004 0.000000006 0.000000008 0.00000001 0.00000002 0.00000004 0.00000006 0.00000008 0.0000001 0.0000002 0.0000004 0.0000006 0.0000008 0.000001 0.000002 0.000004 0.000006 0.000008 0.00001 0.00002 0.00004 0.00006 0.00008 0.0001 0.0002 0.0003 0.0004 0.0005 0.0006 0.0007 0.0008 0.0009 0.001];
+% mx= [25.7232 25.8523 25.9580 25.7913 26.0469 26.1236 26.1910 26.4411 26.7420 26.9349 27.0772 27.1902 27.5516 27.9239 28.1452 28.3034 28.4266 28.8124 29.2019 29.4312 29.5946 29.7217 30.1184 30.5181 30.7532 30.9206 31.0508 31.4571 31.8662 32.1068 32.2781 32.4114 32.8271 33.2456 33.4917 33.6669 33.8032 34.2283  34.4783 34.6563 34.7946 34.9079 35.0038 35.0870 35.1605 35.2263];
+% plot(ae, mx,'k','LineWidth',0.5)
+% xlabel('Cathode Aeration Rate(kg/s)','FontWeight','bold')
+% ylabel('Maximum Power(MicroWatts)','FontWeight','bold')
+% saveas(gcf,'aerationrate_power.tiff')
+
+% figure (1)
+% % plot(t(1:14000),Eoutput(1:14000))
+% plot(ph(1:14000),csb(1:14000),'k')
+% xlabel('pH in anode biofilm','FontWeight','bold');
+% ylabel('Concentration of lactate in bulk (kg/m^{3})','FontWeight','bold')
+% xlim([3,7]);
+% ylim([2.5,7.55]);
+% saveas(gcf,'pH_bulk.tiff')
+% figure (2)
+% plot(ovr(1:14000),csb(1:14000),'k')
+% xlabel('Overpotential (mV)','FontWeight','bold');
+% ylabel('Concentration of lactate in bulk(kg/m^{3})','FontWeight','bold')
+% xlim([0 140]);
+% ylim([2.5,7.55]);
+% saveas(gcf,'overpotential_bulk.tiff')
+% % figure (3)
+% % % plot(cs(1:14000),eff(1:14000))
+% % plot(cs(1:12000),eff(1:12000))
+% % figure (4)
+% % plot(cs(1:14000),I(1:14000))
+% figure (5)
+% plot(L(1:14000),csb(1:14000),'k')
+% xlabel('Biofilm Thickness (m)','FontWeight','bold');
+% ylabel('Concentration of lactate bulk(kg/m^{3})','FontWeight','bold')
+% xlim([2.6*10^(-3),3.3*10^(-3)]);
+% saveas(gcf,'biofilm_thickness_bulk.tiff')
+% % ylim([2,7.5]);
+% figure (6)
+% plot(mut(1:16000),csb(1:16000),'k')
+% xlabel('ln(C/C_o)','FontWeight','bold');
+% ylabel('Concentration of lactate bulk (kg/m^{3})','FontWeight','bold')
+% xlim([0 11]);
+% ylim([0,8]);
+% saveas(gcf,'growth_kinetics_bact_bulk.tiff')
+% 
+% plot(t(1:14000),csb(1:14000))
+
 figure (1)
 % plot(t(1:14000),Eoutput(1:14000))
-plot(ph(1:14000),cs(1:14000))
-xlabel('pH in anode biofilm');
-ylabel('Concentration of lactate (kg/m^{3})')
+plot(mph(1,1:14000),mcs(1,1:14000),'-k',mph(2,1:14000),mcs(2,1:14000),'--r',mph(3,1:14000),mcs(3,1:14000),'-.')
+xlabel('pH in anode biofilm','FontWeight','bold');
+ylabel('Concentration of lactate (kg/m^{3})','FontWeight','bold')
 xlim([3,7]);
 ylim([2.5,7.55]);
-saveas(gcf,'pH.tiff')
+legend('0.0025','0.004','0.001');
+legend('300K','303K','306K');
+saveas(gcf,'mpH_Temp.tiff')
 figure (2)
-plot(ovr(1:14000),cs(1:14000))
-xlabel('Overpotential (mV)');
-ylabel('Concentration of lactate (kg/m^{3})')
+plot(movr(1,1:14000),mcs(1,1:14000),'-k',movr(2,1:14000),mcs(2,1:14000),'--r',movr(3,1:14000),mcs(3,1:14000),'-.')
+xlabel('Overpotential (mV)','FontWeight','bold');
+ylabel('Concentration of lactate (kg/m^{3})','FontWeight','bold')
 xlim([0 140]);
 ylim([2.5,7.55]);
-saveas(gcf,'overpotential.tiff')
+% legend('0.0025','0.004','0.001');
+ legend('300K','303K','306K');
+saveas(gcf,'moverpotential_temp.tiff')
 % figure (3)
 % % plot(cs(1:14000),eff(1:14000))
 % plot(cs(1:12000),eff(1:12000))
 % figure (4)
 % plot(cs(1:14000),I(1:14000))
 figure (5)
-plot(L(1:14000),cs(1:14000))
-xlabel('Biofilm Thickness (m)');
-ylabel('Concentration of lactate (kg/m^{3})')
+plot(mL_cal(1,1:14000),mcs(1,1:14000),'-k',mL_cal(2,1:14000),mcs(2,1:14000),'--r',mL_cal(3,1:14000),mcs(3,1:14000),'-.')
+xlabel('Biofilm Thickness (m)','FontWeight','bold');
+ylabel('Concentration of lactate (kg/m^{3})','FontWeight','bold')
 xlim([2.6*10^(-3),3.3*10^(-3)]);
-saveas(gcf,'biofilm_thickness.tiff')
+ylim([2.3,8]);
+legend('300K','303K','306K');
+saveas(gcf,'mbiofilm_thickness_temp.tiff')
 % ylim([2,7.5]);
-figure (6)
-plot(mut(1:16000),cs(1:16000))
-xlabel('ln(C/C_o)');
-ylabel('Concentration of lactate (kg/m^{3})')
-xlim([0 11.8]);
-ylim([0,8]);
-saveas(gcf,'growth_kinetics_bact.tiff')
+% figure (6)
+% plot(mut(1:16000),cs(1:16000),'k')
+% xlabel('ln(C/C_o)','FontWeight','bold');
+% ylabel('Concentration of lactate (kg/m^{3})','FontWeight','bold')
+% xlim([0 11.8]);
+% ylim([0,8]);
+% saveas(gcf,'growth_kinetics_bact.tiff')
+% figure(7)
+% plot(mut(1:14000),L(1:14000));
+% xlabel('ln(C/C_o)','FontWeight','bold');
+% ylabel('Biofilm Thickness (m)','FontWeight','bold');
+% saveas(gcf,'growth_bact_With_thickness.tiff')
+% figure (8)
+% plot(L(1:14000),ch(1:14000),'k')
+% xlabel('Biofilm Thickness (m)','FontWeight','bold');
+% ylabel('Concentration of hydrogen ions (kg/m^{3})','FontWeight','bold')
+% xlim([2.6*10^(-3),3.3*10^(-3)]);
+% saveas(gcf,'biofilm_thickness_hydrogen.tiff')
+% figure (9)
+% plot(L(1:14000),cco2(1:14000),'k')
+% xlabel('Biofilm Thickness (m)','FontWeight','bold');
+% ylabel('Concentration of carbon dioxide biofilm (kg/m^{3})','FontWeight','bold')
+% xlim([2.6*10^(-3),3.3*10^(-3)]);
+% saveas(gcf,'biofilm_thickness_CarbonDioxide.tiff')
