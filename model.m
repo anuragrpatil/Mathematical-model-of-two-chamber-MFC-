@@ -1,4 +1,8 @@
 % function [ch] = model(T)
+clc
+clear all 
+close all 
+
 T = 273 %:10:453;  
 d_t=1;
 t = 0:d_t:18000;
@@ -133,6 +137,53 @@ I(1)=0;
  
      end
     
+idensity=(I/54)*10^(-3);
+% mut=(mu(1)-kd).*t;
+% mutnoexp(:,:)=exp(mut);
+power=Eoutput.*I/10;
+eff(:,:)=power/76.7;     
      
-     
-% end
+% % end
+% figure (3)
+% % plot(cs(1:14000),eff(1:14000))
+% plot(eff(1:12000)/10,cs(1:12000))
+% xlabel('Efficiency')
+% ylabel('Concentration of lactate (kg/m^{3})')
+% saveas(gcf,'efficiency.tiff')
+% % xlim([2.1,7.5]);
+% % ylim([]);
+% figure (4)
+% plot(I(1:14000)/10,cs(1:14000))
+% xlabel('Current density (mA/m^{2})')
+% ylabel('Concentration of lactate (kg/m^{3})')
+% saveas(gcf,'current_density.tiff')
+% % xlim([]);
+% % ylim([]);
+
+
+
+% figure (7)
+% plot(Eanode(11:14000),I(11:14000),'k','LineWidth',0.5)
+% xlabel('anode potential(mV)','FontWeight','bold')
+% ylabel('Current(mA)','FontWeight','bold')
+% saveas(gcf,'current_AnodePotential.tiff')
+
+figure (8)
+plot(Eoutput(1:14000)/10,idensity(1:14000)/10,'k','LineWidth',1)
+xlabel('Voltage(mV)','FontWeight','bold')
+ylabel('Current denisty(mA/mm{2})','FontWeight','bold')
+% xlim([15,35]);
+% ylim([2.5,7.55]);
+saveas(gcf,'currentdensityVSvoltage.tiff')
+
+
+figure (9)
+plot(cs(11:14000),idensity(11:14000),'k','LineWidth',1)
+xlabel('Concentration of lactate (kg/m^{3})','FontWeight','bold')
+ylabel('Current denisty(mA/mm^{2})','FontWeight','bold')
+xlim([3,7.3]);
+% ylim([2.5,7.55]);
+saveas(gcf,'currentdensityVScs.tiff')
+
+
+
