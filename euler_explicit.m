@@ -2,14 +2,17 @@ clear all
 close all 
 clc
 
-Ds=(0.2544*10^(-4))/86400;
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%% parameters in the sys of ode%%%%%%%%%%
+
+% Ds=(0.2544*10^(-4))/86400;
 Ll=2*10^(-4);
 rho=50;
 Yac=0.212;
 bina=0.02/86400;
 bdet=0.05/86400;
-Dco2=(0.9960*10^(-4))/86400;
-Dh=(2.3328*10^(-4))/86400;
+% Dco2=(0.9960*10^(-4))/86400;
+% Dh=(2.3328*10^(-4))/86400;
 Am=54*10^(-4);
 F=96450;
 T=323;
@@ -22,7 +25,7 @@ ioref=0.005;%changed from tafel plot to 0.005 from 0.001
 b=120;
 dcell=2.5*10^(-2);
 kaq=3500;
-Eka=-155;
+% Eka=-155;DsEff(i)
 dm=4.5;
 km=1.7;
 co2equi=7.26*10^(-3);
@@ -43,17 +46,17 @@ f2 = @(mu,nact,phia) (mu*(1/(1+exp(-F/(R*T*1000)*nact)))*phia) ;
 f3 = @(rs,phia,delta,L) Yac*rs-bina*phia+(phia/L)*delta-(phia/L)*(Yac*rs*L+delta) ;
 f4 = @(rs,L,delta) Yac*rs*L+delta ;
 f5 = @(L) -bdet*L ;
-f6 = @(L,csb,cs,rs,delta) (Ds/(Ll*L))*(csb-cs)-rho*rs-(cs/L)*(Yac*rs*L+delta);
-f7 = @(L,cco2b,cco2,rs,delta) (Dco2/(Ll*L))*(cco2b-cco2)+4*rho*rs-(cco2/L)*(Yac*rs*L+delta) ;
-f8 = @(L,chb,ch,rs,delta) (Dh/(Ll*L))*(chb-ch)+12*rho*rs-(ch/L)*(Yac*rs*L+delta) ;
+f6 = @(L,csb,cs,rs,delta,Ds) (Ds/(Ll*L))*(csb-cs)-rho*rs-(cs/L)*(Yac*rs*L+delta);
+f7 = @(L,cco2b,cco2,rs,delta,Dco2) (Dco2/(Ll*L))*(cco2b-cco2)+4*rho*rs-(cco2/L)*(Yac*rs*L+delta) ;
+f8 = @(L,chb,ch,rs,delta,Dh) (Dh/(Ll*L))*(chb-ch)+12*rho*rs-(ch/L)*(Yac*rs*L+delta) ;
 f9 = @(rs,L,delta) -Am*(Yac*rs*L+delta) ;
-f10 = @(csb,cs,vl) (1/vl)*(-(Am*Ds/Ll)*(csb-cs)) ;
-f11 = @(cco2b,cco2,vl) (1/vl)*(-(Am*Dco2/Ll)*(cco2b-cco2)) ;
+f10 = @(csb,cs,vl,Ds) (1/vl)*(-(Am*Ds/Ll)*(csb-cs)) ;
+f11 = @(cco2b,cco2,vl,Dco2) (1/vl)*(-(Am*Dco2/Ll)*(cco2b-cco2)) ;
 f12 = @(i) -2.24*10^(-7)*(i)+0.0067;
 %f12 = @(i) (kla*co2equi+7.7167*10^(-8)*exp(-(i)*(kla+qo2)))/(kla+qo2);
 f13 = @(co2,ch)  Eocathode-((R*T*1000)/(4*F))*log(1/(co2*(ch^4))) ;
 f14 = @(ch,cco2,cs) Eoanode-((R*T*1000)/(12*F))*log(((cco2^3)*(ch)^(11))/cs) ;
-f15 = @(csb) (12*F*Ds*1000*csb)/(Ll) ;
+f15 = @(csb,Ds) (12*F*Ds*1000*csb)/(Ll) ;
 f16 = @(I) ((dm/km)+(dcell/kaq))*(I/1000) ;
 f17 = @(I,il) ((R*T)/(12*F))*1000*log(il/(il-I)) ;
 f18 = @(I,cs) (b/2.303)*asinh(I/(2*ioref*cs)) ;
@@ -116,25 +119,33 @@ nact(1)=0;
 Eoutput(1)=0;
 I(1)=0;
 T(1)=308;
+Ds(1) = (0.2544*10^(-4))/86400;
+Dh(1) = (2.3328*10^(-4))/86400;
+Dco2(1) = (0.9960*10^(-4))/86400;
+
+
 
 % for j=1:(length(mL))
 %      L(1)= mL(j);
 %       T = mT(j)
     for i=1:(length(t)-1)
-
+        
+        DsEff(i) = (1-phia(i))*Ds(i);
+        DhEff(i) = (1-phia(i))*Dh(i);
+        Dco2Eff(i) = (1-phia(i))*Dco2(i);
         phia(i+1) = phia(i) + 0.1*d_t*f3(rs(i),phia(i),delta(i),L(i));
         L(i+1) = L(i) + 0.008*d_t*f4(rs(i),L(i),delta(i));
         delta(i+1) = delta(i) + 0.8*d_t*f5(L(i));
-        cs(i+1) = cs(i) + 0.00031*d_t*f6(L(i),csb(i),cs(i),rs(i),delta(i));
-        cco2(i+1) = cco2(i) + d_t*f7(L(i),cco2b(i),cco2(i),rs(i),delta(i));
-        ch(i+1) = ch(i) + 0.000000003*d_t*f8(L(i),chb,ch(i),rs(i),delta(i));
+        cs(i+1) = cs(i) + 0.00031*d_t*f6(L(i),csb(i),cs(i),rs(i),delta(i),DsEff(i));
+        cco2(i+1) = cco2(i) + d_t*f7(L(i),cco2b(i),cco2(i),rs(i),delta(i),Dco2Eff(i));
+        ch(i+1) = ch(i) + 0.000000003*d_t*f8(L(i),chb,ch(i),rs(i),delta(i),DhEff(i));
         vl(i+1) = vl(i) + d_t*f9(rs(i),L(i),delta(i));
-        csb(i+1) = csb(i) + 0.0003*d_t*f10(csb(i),cs(i),vl(i));
-        cco2b(i+1) = cco2b(i) + d_t*f11(cco2b(i),cco2(i),vl(i));
+        csb(i+1) = csb(i) + 0.0003*d_t*f10(csb(i),cs(i),vl(i),DsEff(i));
+        cco2b(i+1) = cco2b(i) + d_t*f11(cco2b(i),cco2(i),vl(i),Dco2Eff(i));
         co2(i+1) = f12(i+d_t);
         Ecathode(i+1) = f13(co2(i+1),10^(-7));
         Eanode(i+1) = f14(ch(i+1),cco2(i+1),cs(i+1));
-        il(i+1) = f15(csb(i+1));
+        il(i+1) = f15(csb(i+1),DsEff(i));
         nohm(i+1) = f16(I(i));
         nconc(i+1) = f17(I(i),il);
         nact(i+1) = f18(I(i),cs(i+1));
@@ -142,6 +153,9 @@ T(1)=308;
         rs(i+1) = f2(mu(i+1),nact(i+1),phia(i+1));
         Eoutput(i+1) = f19(Ecathode(i+1),Eanode(i+1),nohm(i+1),nconc(i+1),nact(i+1));
         I(i+1) = f20(Eoutput(i+1));
+        Ds(i+1)= DsEff(i);
+        Dh(i+1)= DhEff(i); 
+        Dco2(i+1) = Dco2Eff(i); 
         if i<=16000
         kd(i)=mu(1)*exp(-(16000/t(i)));
         elseif i>16000
@@ -155,6 +169,7 @@ T(1)=308;
     mL_cal(j,:)=L;
     ovr=(nact+nconc+nohm);
     movr(j,:)=ovr;
+    mporosity(j,:)=1-phia;
 end 
 ovr=(nact+nconc+nohm);
 OUR=co2*qo2;
@@ -327,6 +342,15 @@ xlim([2.6*10^(-3),3.3*10^(-3)]);
 ylim([2.3,8]);
 legend('300K','303K','306K');
 saveas(gcf,'mbiofilm_thickness_temp.tiff')
+
+figure (6)
+plot(mporosity(1,1:14000),mcs(1,1:14000),'-k',mporosity(2,1:14000),mcs(2,1:14000),'--r',mporosity(3,1:14000),mcs(3,1:14000),'-.')
+xlabel('Biofilm porosity','FontWeight','bold');
+ylabel('Concentration of lactate (kg/m^{3})','FontWeight','bold')
+xlim([0.0001,0.571319714300000]);
+% ylim([2.3,8]);
+legend('300K','303K','306K');
+saveas(gcf,'mbiofilm_porosity_temp.tiff')
 % ylim([2,7.5]);
 % figure (6)
 % plot(mut(1:16000),cs(1:16000),'k')
